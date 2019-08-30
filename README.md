@@ -1,2 +1,2 @@
-# cs360
+# CS360
 Introduction to Computer Graphics
