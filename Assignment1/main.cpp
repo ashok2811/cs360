@@ -15,9 +15,7 @@ class ground{
 
 	public:
 
-
-	void draw(){		
-
+	void draw(){	
 		glBegin(GL_QUADS);
 		glColor3f( 0.137, 0.121, 0.258); 
 		glVertex3f(-40.0f, -2.0f, -30.0f);
@@ -27,17 +25,11 @@ class ground{
 		glVertex3f(40.0f, -2.0f, 30.0f);
 		glColor3f(  0.886, 0.070, 0.372 );
 		glVertex3f(-40.0f, -2.0f, 30.0f);
-
-		glEnd();
-	}	
-
+		glEnd();}	
 };
 
 class drawBox{
-
-
 	public:
-
 
 		GLfloat px = 0.0;
 		GLfloat py = 0.0;
@@ -51,9 +43,6 @@ class drawBox{
 		GLfloat rr = 1.0;
 		GLfloat gg = 1.0;
 		GLfloat bb = 1.0;
-
-
-
 		GLfloat xt =0.0;
 		GLfloat yt =0.0;
 		GLfloat zt = 0.0;
@@ -61,48 +50,31 @@ class drawBox{
 		GLfloat dy = 1.0;
 		GLfloat dz =1.0;
 
-		drawBox(int x){
-
-		}
+		drawBox(float x = 1, float y = 1, float z = 1 ){
+				dx=x; dy = y; dz = z;}
 
 		void move(float x, float y , float z){
-
-			px = px +x; py = py +y; pz = pz + z;
-
-		}
+			px = px +x; py = py +y; pz = pz + z;}
 
 		void rotate(float x, float y , float z){
-
-			rx = rx +x; ry = ry +y; rz = rz + z;
-
-		}
+			rx = rx +x; ry = ry +y; rz = rz + z;}
 
 		void scale(float x, float y , float z){
-
-			sx = sx +x; sy = sy +y; sz = sz + z;
-
-		}
+			sx = sx +x; sy = sy +y; sz = sz + z;}
 
 		void color(float r, float g, float b){
-			rr =r; gg =g, bb=b;
-		}
+			rr =r; gg =g, bb=b;}
 
 
 		void display(){
-
 				glPushMatrix(); //set where to start the current object transformations
 				glTranslatef(px, py, pz); //move cube1 to the right
 				glRotatef(rx, 1.0f, 0.0f, 0.0f);
 				glRotatef(ry, 0.0f, 1.0f, 0.0f);
 				glRotatef(rz, 0.0f, 0.0f, 1.0f);
-
 				glScalef(sx, sy, sz);
 				colorcube(); 	
-				glPopMatrix(); //end the current object transformations
-
-		
-		}
-
+				glPopMatrix(); }
 
 		float ver[8][3] = 
 		{
@@ -116,40 +88,28 @@ class drawBox{
 			{xt+dx/2,yt-dy/2,zt-dz/2},
 		};
 
-
-
-
 		void quad(int a,int b,int c,int d)
-		{	
-
-			
+		{				
 			glBegin(GL_QUADS);
 			glColor3f(rr,gg,bb);
 			glVertex3fv(ver[a]);
-
 			glVertex3fv(ver[b]);
-
 			glVertex3fv(ver[c]);
-
 			glVertex3fv(ver[d]);
 			glEnd();
 		}
 
 		void colorcube()
-		{	
-		
+		{			
 			quad(0,3,2,1);
 			quad(2,3,7,6);
 			quad(0,4,7,3);
 			quad(1,2,6,5);
 			quad(4,5,6,7);
 			quad(0,1,5,4);			
-			
 		}
 
 };
-
-
 
 
 class barrel{
@@ -172,6 +132,11 @@ class barrel{
 		GLfloat dx = 0.1;
 		GLfloat dy = 0.2;
 		GLfloat dz =2.0;
+
+		barrel(){
+
+			
+		}
 
 		
 
@@ -205,10 +170,10 @@ class barrel{
 				glRotatef(rz, 0.0f, 0.0f, 1.0f);
 
 				glScalef(sx, sy, sz);
-				colorcube(); 	
+				colorcube();
+				drawBox b1;
 				glPopMatrix(); //end the current object transformations
 
-		
 		}
 
 
@@ -267,48 +232,99 @@ class barrel{
 			quad(0,1,5,4);			
 			
 		}
+};
+
+class bullet{
+	public:
+
+		GLfloat px = 0.0;
+		GLfloat py = 0.0;
+		GLfloat pz = 0.0;
+
+		GLfloat xt =0.0;
+		GLfloat yt =0;
+		GLfloat zt = 0;
+		GLfloat dx = 0.1;
+		GLfloat dy = 0.2;
+		GLfloat dz =0.1;
+
+		void move(float x, float y , float z){
+
+			px = px +x; py = py +y; pz = pz + z;
+
+		}
+
+			
+		void display(){
+
+				glPushMatrix(); //set where to start the current object transformations
+				glTranslatef(px, py, pz); //move cube1 to the right
+				colorcube();
+				glPopMatrix(); //end the current object transformations
+
+		}
 
 
+		float ver[8][3] = 
+		{
+			{xt-dx/2,yt-dy/2,zt},
+			{xt-dx/2,yt+dy/2,zt},
+			{xt+dx/2,yt+dy/2,zt},
+			{xt+dx/2,yt-dy/2,zt},
+			{xt-dx/2,yt-dy/2,zt-dz},
+			{xt-dx/2,yt+dy/2,zt-dz},
+			{xt+dx/2,yt+dy/2,zt-dz},
+			{xt+dx/2,yt-dy/2,zt-dz},
+		};
+
+		void quad(int a,int b,int c,int d)
+		{	
+			
+			glBegin(GL_QUADS);
+			glColor3f(1,1,0);
+			glVertex3fv(ver[a]);
+			glVertex3fv(ver[b]);
+			glVertex3fv(ver[c]);
+			glVertex3fv(ver[d]);
+			glEnd();
+		}
+
+		void colorcube()
+		{			
+			quad(0,3,2,1);
+			quad(2,3,7,6);
+			quad(0,4,7,3);
+			quad(1,2,6,5);
+			quad(4,5,6,7);
+			quad(0,1,5,4);			
+			
+		}
 
 };
 
-
-
-
-
-
-
 class tank{
 
-
 	public:
-
-
 		
 		GLfloat px = 0.0;
 		GLfloat py = 0.0;
 		GLfloat pz = 0.0;
 		GLfloat rx = 0.0;
 		GLfloat ry = 0.0;
-		GLfloat rz = 0.0;
-		GLfloat sx = 1.0;
-		GLfloat sy = 1.0;
-		GLfloat sz = 1.0;
+		GLfloat rz = 0.0;		
 		GLfloat pitch = 0.0;
-		GLfloat yaw =0.0;
 		GLfloat rr = 1.0;
 		GLfloat gg = 1.0;
 		GLfloat bb = 1.0;
+		GLfloat bx =0.0;
+		GLfloat by =0.0;
+		GLfloat bz =0.0;
 
 
 		tank(float x, float z, float a){
-
-			px = x ;	pz = z; ry = a;	
-
-			
+			px = x ;	pz = z; ry = a;			
 
 		}
-
 
 		void translate(float x, float y , float z){
 
@@ -322,16 +338,16 @@ class tank{
 
 		}
 
-		void scale(float x, float y , float z){
-
-			sx = sx +x; sy = sy +y; sz = sz + z;
-
-		}
-
 		void move(float s){
 
 			px = px + s*sin(ry*3.14159/180);
 			pz = pz + s*cos(ry*3.14159/180);
+
+			}
+
+		void moveBullet(float x, float y , float z){
+
+			bx = bx + x; by = by + y; bz = bz + z;
 
 			}
 
@@ -346,6 +362,7 @@ class tank{
 			b1.color(rr, gg, bb );			
 			drawBox b2(1);
 			b2.color(1-gg, 1-bb, 1-rr );
+			bullet b4;
 		
 		glPushMatrix(); //set where to start the current object transformations
 				
@@ -354,10 +371,6 @@ class tank{
 				glRotatef(rx, 1.0f, 0.0f, 0.0f);
 				glRotatef(ry, 0.0f, 1.0f, 0.0f);
 				glRotatef(rz, 0.0f, 0.0f, 1.0f);
-
-				glScalef(sx, sy, sz);	
-				
-
 				
 				b1.move(0.0 , -1.5 , 0.0);
 				b1.scale(2.0, 1.0 , 2.0);
@@ -366,7 +379,9 @@ class tank{
 				b2.display();
 				
 				b3.rotate(pitch);
-				b3.display();		
+				b3.display();
+				b4.move(bx , by ,bz);
+				b4.display();
 				
 
 			glPopMatrix();			
@@ -374,65 +389,77 @@ class tank{
 };
 
 
-class score{
+class scoreB{
 
 	public:
-
-		int s=3;
+		int s=5;
 		GLfloat rr = 0.77;
 		GLfloat gg =0.38;
 		GLfloat bb =0.06;
 		GLfloat x = 0;
 		GLfloat z = 0;
 
-		score(float xx, float zz ){			
+		scoreB(float xx, float zz ){			
 			x =xx; z = zz; 
 		}
-
-
 		void display(){
 
 			drawBox b1(1);
 			b1.color(rr, gg, bb );
 			b1.move(x,-1,z);
-			b1.display();
+			
 			drawBox b2(2);
 			b2.color(rr, gg, bb );
-			b2.move(x,0,z);
-			b2.display();
+			b2.move(x,0.5,z);
+			
 			drawBox b3(1);
 			b3.color(rr, gg, bb );
-			b3.move(x,1,z);
-			b3.display();
+			b3.move(x,2.0,z);
+			
 			drawBox b4(2);
 			b4.color(rr, gg, bb );
-			b4.move(x,2,z);
-			b4.display();
+			b4.move(x,3.5,z);
+			
 			drawBox b5(1);
 			b5.color(rr, gg, bb );
-			b5.move(x,3,z);
-			b5.display();			
+			b5.move(x,5.0,z);
+			
+			if(s==5){
+				b1.display();
+				b2.display();
+				b3.display();
+				b4.display();
+				b5.display();
+			}
 
-			if(s==4){
-				b5.color(0.0 , 1.0 , 0.0 );
+			else if(s==4){
+				b1.display();
+				b2.display();
+				b3.display();
+				b4.display();
 			}
 
 			else if(s==3){
-				b4.color(0.0 , 1.0 , 0.0 );
+				b1.display();
+				b2.display();
+				b3.display();
 			}
 
 			else if(s==2){
-				b3.color(0.0 , 1.0 , 0.0 );
+				b1.display();
+				b2.display();
 			}
-
 			else if(s==1){
-				b2.color(0.0 , 1.0 , 0.0 );
-			}
-			else if(s==0){
-				b1.color(0.0 , 1.0 , 0.0 );
+				b1.display();
 			}
 						
 
+		}
+
+		int decHealth(){
+			s = s-1;
+			if(s<0){s=0;}
+			return s;
 		}
 
 
@@ -440,16 +467,11 @@ class score{
 
 
 
-
-
-
-
-
 tank t1(0, 25 , 0);
 tank t2(0, -25, 180);
 ground g1;
-score s1(20,25);
-score s2(-20 ,-25);
+scoreB s1(20,25);
+scoreB s2(-20 ,-25);
 
 void renderScene(void){
 	glClearColor( 0, 0, 0, 1 );
@@ -507,9 +529,11 @@ void specialKeys( int key, int x, int y )
 	
     if (key == GLUT_KEY_RIGHT){
 		t1.pitch = t1.pitch + 5.0;
+		cout << s1.decHealth()<<endl ;
 	}
     else if (key == GLUT_KEY_LEFT){
       	t1.pitch = t1.pitch - 5.0;
+		cout << s2.decHealth()<<endl ;
 }
     else if (key == GLUT_KEY_UP){
 			t1.rotate(0.0, 5.0, 0.0);	}
@@ -522,7 +546,9 @@ void specialKeys( int key, int x, int y )
 void animate(void){
 
 	Ry += 0.03;
-	
+	t1.moveBullet(0.0, 0.00 ,-0.01);
+	t2.moveBullet(0.0, 0.00 ,-0.01);
+
 	renderScene();
 }
 
@@ -538,8 +564,6 @@ int main (int argc, char **argv){
 	Sx = 1.0f; Sy = 1.0; Sz = 1.0;
 	//Assign  the function used in events
 
-
-	
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
 	 glutSpecialFunc( specialKeys );
