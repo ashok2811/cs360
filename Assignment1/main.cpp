@@ -241,16 +241,21 @@ class bullet{
 		GLfloat py = 0.0;
 		GLfloat pz = 0.0;
 
-		GLfloat xt =0.0;
-		GLfloat yt =0;
-		GLfloat zt = 0;
+		GLfloat xt , yt , zt;
 		GLfloat dx = 0.1;
 		GLfloat dy = 0.2;
 		GLfloat dz =0.1;
+		GLfloat bx =0.0;
+		GLfloat by =0.0;
+		GLfloat bz =0.0;
+		bullet (float x , float y , float z){
+			xt =x ; yt = y ; zt =z;
 
-		void move(float x, float y , float z){
+		}
 
-			px = px +x; py = py +y; pz = pz + z;
+		void moveBullet(float x, float y , float z){
+
+			bx =x; by = y; bz = z;
 
 		}
 
@@ -258,7 +263,7 @@ class bullet{
 		void display(){
 
 				glPushMatrix(); //set where to start the current object transformations
-				glTranslatef(px, py, pz); //move cube1 to the right
+				glTranslatef(bx, by, bz); //move cube1 to the right
 				colorcube();
 				glPopMatrix(); //end the current object transformations
 
@@ -316,15 +321,12 @@ class tank{
 		GLfloat rr = 1.0;
 		GLfloat gg = 1.0;
 		GLfloat bb = 1.0;
-		GLfloat bx =0.0;
-		GLfloat by =0.0;
-		GLfloat bz =0.0;
-
-
+			
 		tank(float x, float z, float a){
-			px = x ;	pz = z; ry = a;			
-
+			px = x ;	pz = z; ry = a;	
 		}
+
+
 
 		void translate(float x, float y , float z){
 
@@ -345,14 +347,19 @@ class tank{
 
 			}
 
-		void moveBullet(float x, float y , float z){
-
-			bx = bx + x; by = by + y; bz = bz + z;
-
-			}
 
 		void color(float r, float g, float b){
 			rr =r; gg =g, bb=b;
+		}
+
+		int isDead(float x, float z){
+
+			if(((x>=px-2)&&(x <= px + 2) ) &&  ((z>=pz-2)&&(z <= pz + 2) )  ){
+				return 1;
+			}
+
+			else{return 0;}
+
 		}
 
 		void display(){
@@ -362,7 +369,7 @@ class tank{
 			b1.color(rr, gg, bb );			
 			drawBox b2(1);
 			b2.color(1-gg, 1-bb, 1-rr );
-			bullet b4;
+			
 		
 		glPushMatrix(); //set where to start the current object transformations
 				
@@ -380,13 +387,26 @@ class tank{
 				
 				b3.rotate(pitch);
 				b3.display();
-				b4.move(bx , by ,bz);
-				b4.display();
-				
+										
 
 			glPopMatrix();			
 		}	
 };
+
+float timeOfFlight(float u, float ang){
+
+		return (2*u*sin(ang*3.14159/180)/(9.8));
+}
+
+float distance(float u, float ang){
+
+	return (u*u*sin(2*ang*3.14159/180)/(9.8));
+}
+
+float currH(float u, float ang, float t){
+		float s = u*sin(ang*3.14159/180)*t - 0.5*9.8*t*t ;
+		return(s);
+}
 
 
 class scoreB{
@@ -472,8 +492,10 @@ tank t2(0, -25, 180);
 ground g1;
 scoreB s1(20,25);
 scoreB s2(-20 ,-25);
+bullet b4(0, 0, 0);
 
 void renderScene(void){
+
 	glClearColor( 0, 0, 0, 1 );
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
@@ -485,6 +507,7 @@ void renderScene(void){
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity(); 
+	
 
 	
 	// changing in transformation matrix.
@@ -504,6 +527,7 @@ void renderScene(void){
 	t2.display();
 	s1.display();
 	s2.display();
+	b4.display();
 
 	 
 	glFlush();
@@ -523,35 +547,78 @@ void changeSize(int x, int y){
     glMatrixMode(GL_MODELVIEW);
 }
 
+float t =0.0;
+float v = 22; 
+float Angle = t1.pitch;
+int shootFlag1 = 0;
+int shootFlag2 = 0;
+float Ox = t1.px;
+float Oz = t1.pz;
+float Oyy = t1.ry;
+
+
+void keyboard(unsigned char key, int x, int y)
+{
+	
+	if(key=='w'){t2.move(-1);}		
+	else if(key=='a'){t2.rotate(0.0, 5.0, 0.0);}
+	else if(key=='d'){t2.rotate(0.0, -5.0, 0.0);}
+	else if(key=='s'){t2.move(1);}
+	else if(key=='q'){t2.pitch = t2.pitch + 5;}
+	else if(key=='z'){t2.pitch = t2.pitch - 5;}
+	else if(key==','){t1.pitch = t1.pitch - 5;}
+	else if(key=='.'){t1.pitch = t1.pitch + 5;}
+	else if(key==' '){shootFlag1 = 1;}
+	else if(key=='x'){shootFlag2 = 1;}
+	
+}
+
 
 void specialKeys( int key, int x, int y ) 
 {
 	
-    if (key == GLUT_KEY_RIGHT){
-		t1.pitch = t1.pitch + 5.0;
-		cout << s1.decHealth()<<endl ;
-	}
-    else if (key == GLUT_KEY_LEFT){
-      	t1.pitch = t1.pitch - 5.0;
-		cout << s2.decHealth()<<endl ;
-}
-    else if (key == GLUT_KEY_UP){
-			t1.rotate(0.0, 5.0, 0.0);	}
-	else if (key == GLUT_KEY_DOWN){
-   			t1.rotate(0.0, -5.0, 0.0);
-	}
+    if (key == GLUT_KEY_RIGHT){	t1.rotate(0.0, -5.0, 0.0);}
+    else if (key == GLUT_KEY_LEFT){t1.rotate(0.0, 5.0, 0.0);}
+    else if (key == GLUT_KEY_UP){t1.move(-1);}
+	else if (key == GLUT_KEY_DOWN){t1.move(1);}
     glutPostRedisplay();
 }
+
+
 
 void animate(void){
 
 	Ry += 0.03;
-	t1.moveBullet(0.0, 0.00 ,-0.01);
-	t2.moveBullet(0.0, 0.00 ,-0.01);
+
+	
+	if(currH(v, Angle , t) < -1.5){
+		t=0;
+		Angle = t1.pitch;
+		Ox = t1.px;
+		Oz = t1.pz;
+		Oyy = t1.ry;
+			
+		}
+	
+	else {	
+
+	t=t+0.004;
+
+	b4.moveBullet(Ox -(v*cos(Angle*3.14159/180)*t)*sin(Oyy*3.14159/180) , currH(v, Angle , t), Oz -(v*cos(Angle*3.14159/180)*t)*cos(Oyy*3.14159/180));
+
+
+			cout << t1.pz << endl;
+
+	if(t2.isDead(0.0,-v*cos(Angle*3.14159/180)*t)){
+			s2.decHealth();
+
+	}
+	
 
 	renderScene();
 }
 
+}
 int main (int argc, char **argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
@@ -566,9 +633,9 @@ int main (int argc, char **argv){
 
 	glutDisplayFunc(renderScene);
 	glutReshapeFunc(changeSize);
-	 glutSpecialFunc( specialKeys );
+	glutSpecialFunc( specialKeys );
     glEnable( GL_DEPTH_TEST );
-
+	glutKeyboardFunc(keyboard);
 	glutIdleFunc(animate);					//for animation uncomment
 	
 	glutMainLoop();
