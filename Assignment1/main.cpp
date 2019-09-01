@@ -413,9 +413,9 @@ class scoreB{
 
 	public:
 		int s=5;
-		GLfloat rr = 0.77;
-		GLfloat gg =0.38;
-		GLfloat bb =0.06;
+		GLfloat rr = 0;
+		GLfloat gg =1;
+		GLfloat bb =0;
 		GLfloat x = 0;
 		GLfloat z = 0;
 
@@ -485,6 +485,93 @@ class scoreB{
 
 };
 
+class power{
+
+	public:
+		int s=22;
+		GLfloat rr = 1;
+		GLfloat gg =0;
+		GLfloat bb =0;
+		GLfloat x = 0;
+		GLfloat z = 0;
+
+
+		power(float xx, float zz){
+			x = xx ;	z = zz; 
+		}
+
+		void display(){
+			
+			
+
+			drawBox b1(1);
+			b1.color(rr, gg, bb );
+			b1.move(x,-1,z);
+			
+			drawBox b2(2);
+			b2.color(rr, gg, bb );
+			b2.move(x,0.5,z);
+			
+			drawBox b3(1);
+			b3.color(rr, gg, bb );
+			b3.move(x,2.0,z);
+			
+			drawBox b4(2);
+			b4.color(rr, gg, bb );
+			b4.move(x,3.5,z);
+			
+			drawBox b5(1);
+			b5.color(rr, gg, bb );
+			b5.move(x,5.0,z);
+			
+			
+			if(s==26){
+				b1.display();
+				b2.display();
+				b3.display();
+				b4.display();
+				b5.display();
+			}
+
+			else if(s==24){
+				b1.display();
+				b2.display();
+				b3.display();
+				b4.display();
+			}
+
+			else if(s==22){
+				b1.display();
+				b2.display();
+				b3.display();
+			}
+
+			else if(s==20){
+				b1.display();
+				b2.display();
+			}
+			else if(s==18){
+				b1.display();
+			}
+
+		}
+
+
+		int incPower(){
+			s = s+2;
+			if(s>26){s=26;}
+			return s;
+		}
+
+		int decPower(){
+			s = s-2;
+			if(s<=18){s=18;}
+			return s;
+		}
+
+
+};
+
 
 
 tank t1(0, 25 , 0);
@@ -493,6 +580,84 @@ ground g1;
 scoreB s1(20,25);
 scoreB s2(-20 ,-25);
 bullet b4(0, 0, 0);
+
+power p1(-20,25);
+power p2(20,-25);
+
+class fire{
+	public: 
+
+	float t =0.0;
+	float v ;
+	int tank ;
+	float Angle ,Ox, Oyy, Oz;
+			
+	fire (int x){
+
+		if(x == 1){
+		Angle = t1.pitch;
+		Ox = t1.px;
+		Oz = t1.pz;
+		Oyy = t1.ry;
+		v = p1.s;
+		tank = 1;
+
+		}
+		else if (x == 2)
+		{
+
+		Angle = t2.pitch;
+		Ox = t2.px;
+		Oz = t2.pz;
+		Oyy = t2.ry;
+		v = p2.s;
+		tank =2;
+			
+		}
+
+	}
+
+	
+	void display(){	
+
+				float vx , vz , vy;		
+		
+				if(currH(v, Angle , t) < -1.5){
+				t=0;
+				if(tank == 1){Angle = t1.pitch;
+				Ox = t1.px;	Oz = t1.pz;	Oyy = t1.ry; v = p1.s;}
+				else if(tank ==2){Angle = t2.pitch;
+				Ox = t2.px;	Oz = t2.pz;	Oyy = t2.ry; v = p2.s;}										
+				}
+				
+				else {	
+				t=t+0.004;
+				vx = Ox -(v*cos(Angle*3.14159/180)*t)*sin(Oyy*3.14159/180) ;
+				vz =  Oz -(v*cos(Angle*3.14159/180)*t)*cos(Oyy*3.14159/180);
+
+				b4.moveBullet( vx , currH(v, Angle , t), vz);
+
+				if(tank == 1){					
+						if(t2.isDead(0.0,-v*cos(Angle*3.14159/180)*t)){
+						s2.decHealth();}
+					}
+				else if(tank == 2){					
+						if(t1.isDead(0.0,-v*cos(Angle*3.14159/180)*t)){
+						s1.decHealth();}
+					}
+				
+			}
+
+			
+
+	}
+	};
+
+
+fire f1(1);
+fire f2(2);
+int ff = -1;
+
 
 void renderScene(void){
 
@@ -528,6 +693,23 @@ void renderScene(void){
 	s1.display();
 	s2.display();
 	b4.display();
+	
+	p1.display();
+	
+	p2.display();
+
+	if(ff==1){f1.display();}
+	else if (ff ==-1)
+	{
+		f2.display();
+	}
+	
+	
+	
+			
+	
+
+
 
 	 
 	glFlush();
@@ -547,14 +729,7 @@ void changeSize(int x, int y){
     glMatrixMode(GL_MODELVIEW);
 }
 
-float t =0.0;
-float v = 22; 
-float Angle = t1.pitch;
-int shootFlag1 = 0;
-int shootFlag2 = 0;
-float Ox = t1.px;
-float Oz = t1.pz;
-float Oyy = t1.ry;
+
 
 
 void keyboard(unsigned char key, int x, int y)
@@ -566,10 +741,12 @@ void keyboard(unsigned char key, int x, int y)
 	else if(key=='s'){t2.move(1);}
 	else if(key=='q'){t2.pitch = t2.pitch + 5;}
 	else if(key=='z'){t2.pitch = t2.pitch - 5;}
-	else if(key==','){t1.pitch = t1.pitch - 5;}
-	else if(key=='.'){t1.pitch = t1.pitch + 5;}
-	else if(key==' '){shootFlag1 = 1;}
-	else if(key=='x'){shootFlag2 = 1;}
+	else if(key=='l'){t1.pitch = t1.pitch - 5;}
+	else if(key=='o'){t1.pitch = t1.pitch + 5;}
+	else if(key=='.'){p1.incPower();}
+	else if(key==','){p1.decPower();}
+	else if(key=='x'){p2.incPower();}
+	else if(key=='c'){p2.decPower();}
 	
 }
 
@@ -586,39 +763,29 @@ void specialKeys( int key, int x, int y )
 
 
 
+
 void animate(void){
 
-	Ry += 0.03;
+		Ry += ff*0.06;
+		
+		
 
-	
-	if(currH(v, Angle , t) < -1.5){
-		t=0;
-		Angle = t1.pitch;
-		Ox = t1.px;
-		Oz = t1.pz;
-		Oyy = t1.ry;
-			
+		if(Ry<=0){
+			ff = 1;
+				
 		}
-	
-	else {	
+		if(Ry >=180 ){
+			ff = -1;
+		
 
-	t=t+0.004;
+		}
 
-	b4.moveBullet(Ox -(v*cos(Angle*3.14159/180)*t)*sin(Oyy*3.14159/180) , currH(v, Angle , t), Oz -(v*cos(Angle*3.14159/180)*t)*cos(Oyy*3.14159/180));
-
-
-			cout << t1.pz << endl;
-
-	if(t2.isDead(0.0,-v*cos(Angle*3.14159/180)*t)){
-			s2.decHealth();
-
-	}
-	
 
 	renderScene();
 }
 
-}
+
+
 int main (int argc, char **argv){
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
@@ -627,7 +794,7 @@ int main (int argc, char **argv){
 	glutCreateWindow("Assignment1");
 	
 	Tx = 0.0; Ty = -20.0; Tz = -66.0;
-	Rx = 0.0; Ry = 15.0; Rz = -0.0;
+	Rx = 0.0; Ry = 90.0; Rz = -0.0;
 	Sx = 1.0f; Sy = 1.0; Sz = 1.0;
 	//Assign  the function used in events
 
